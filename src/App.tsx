@@ -224,48 +224,94 @@ function App() {
       <div style={{
         position: 'absolute',
         bottom: '20px',
-        left: '20px',
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'flex-end',
-        gap: '20px',
-        color: 'white'
+        left: '50%',
+        transform: 'translateX(-50%)',
+        color: 'white',
+        width: '90%',
+        maxWidth: '600px',
+        background: 'rgba(0, 0, 0, 0.6)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '12px',
+        padding: '15px'
       }}>
-        <TimeControls 
-          timeSpeed={timeSpeed} 
-          setTimeSpeed={setTimeSpeed}
-        />
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '20px',
+          alignItems: 'start'
+        }}>
+          {/* Simulation Speed Controls */}
+          <div>
+            <div style={{ marginBottom: '10px', textAlign: 'center', fontWeight: 'bold' }}>
+              Simulation Speed
+            </div>
+            <div className="time-controls-buttons" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+              gap: '8px'
+            }}>
+              {TIME_SPEEDS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => setTimeSpeed(value)}
+                  className={timeSpeed === value ? 'active' : ''}
+                  style={{
+                    padding: '8px',
+                    background: timeSpeed === value ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    width: '100%'
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <button
-          onClick={() => setShowPlanetNames(!showPlanetNames)}
-          style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            display: 'flex',
+          {/* Planet Names Toggle */}
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
-            backdropFilter: 'blur(10px)',
-            width: isMobile ? '100%' : 'auto',
-            maxWidth: isMobile ? '300px' : 'none',
-            justifyContent: isMobile ? 'center' : 'flex-start'
-          }}
-        >
-          <span style={{ 
-            display: 'inline-block',
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: showPlanetNames ? '#4CAF50' : '#666',
-            transition: 'background 0.2s ease'
-          }} />
-          Planet Names
-        </button>
+            justifyContent: 'center'
+          }}>
+            <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
+              Planet Labels
+            </div>
+            <button
+              onClick={() => setShowPlanetNames(!showPlanetNames)}
+              style={{
+                background: showPlanetNames ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                width: '100%',
+                maxWidth: '200px'
+              }}
+            >
+              <span style={{ 
+                display: 'inline-block',
+                width: '16px',
+                height: '16px',
+                borderRadius: '50%',
+                background: showPlanetNames ? '#4CAF50' : '#666',
+                transition: 'background 0.2s ease'
+              }} />
+              {showPlanetNames ? 'Hide Names' : 'Show Names'}
+            </button>
+          </div>
+        </div>
       </div>
 
       <style>
@@ -275,14 +321,18 @@ function App() {
               width: 100%;
               max-width: 300px;
             }
+            .time-controls-title {
+              text-align: center;
+              margin-bottom: 8px;
+            }
             .time-controls-buttons {
-              display: flex;
-              flex-wrap: wrap;
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
               gap: 8px;
             }
             .time-controls-buttons button {
-              flex: 1;
-              min-width: 80px;
+              width: 100%;
+              white-space: nowrap;
             }
           }
         `}

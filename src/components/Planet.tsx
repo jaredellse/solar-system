@@ -175,7 +175,7 @@ export default function Planet({
               background: 'rgba(0,0,0,0.8)',
               padding: '0.4em 0.8em',
               borderRadius: '8px',
-              fontSize: '16px',
+              fontSize: '10px',
               fontWeight: 'bold',
               whiteSpace: 'nowrap',
               userSelect: 'none',
