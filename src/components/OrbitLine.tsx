@@ -25,11 +25,10 @@ export function OrbitLine({ radius, color = '#ffffff20' }: OrbitLineProps) {
     <Line
       points={points}
       color={color}
-      lineWidth={0.5}
-      dashed={true}
-      dashScale={100}
-      dashSize={1}
-      dashOffset={0}
+      lineWidth={1}
+      opacity={0.5}
+      transparent
+      dashed={false}
     />
   )
 } 
