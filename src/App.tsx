@@ -1,4 +1,4 @@
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import Sun from './components/Sun'
@@ -175,6 +175,18 @@ function PlanetInfo({ planet }: { planet: typeof planets[0] }) {
 function App() {
   const [selectedPlanet, setSelectedPlanet] = useState<string | null>(null)
   const [timeSpeed, setTimeSpeed] = useState(TIME_SPEEDS[0].value)
+  const [activeDescription, setActiveDescription] = useState<string | null>(null)
+  const [showPlanetNames, setShowPlanetNames] = useState(true)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
@@ -195,21 +207,86 @@ function App() {
               key={planet.name}
               {...planet}
               timeSpeed={timeSpeed}
-              onClick={() => setSelectedPlanet(planet.name)}
+              description={REAL_PLANET_DATA[planet.name as keyof typeof REAL_PLANET_DATA].description}
+              realRadius={REAL_PLANET_DATA[planet.name as keyof typeof REAL_PLANET_DATA].radius}
+              realDistance={REAL_PLANET_DATA[planet.name as keyof typeof REAL_PLANET_DATA].distance}
+              isDescriptionVisible={activeDescription === planet.name}
+              onDescriptionToggle={() => {
+                setActiveDescription(activeDescription === planet.name ? null : planet.name)
+              }}
+              showName={showPlanetNames}
             />
           ))}
         </Suspense>
       </Canvas>
 
       {/* UI Controls */}
-      <div style={{ position: 'absolute', top: 20, left: 20, color: 'white' }}>
-        <TimeControls timeSpeed={timeSpeed} setTimeSpeed={setTimeSpeed} />
-        {selectedPlanet && (
-          <div style={{ marginTop: 20 }}>
-            <PlanetInfo planet={planets.find(p => p.name === selectedPlanet)!} />
-          </div>
-        )}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '20px',
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'flex-end',
+        gap: '20px',
+        color: 'white'
+      }}>
+        <TimeControls 
+          timeSpeed={timeSpeed} 
+          setTimeSpeed={setTimeSpeed}
+        />
+
+        <button
+          onClick={() => setShowPlanetNames(!showPlanetNames)}
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            backdropFilter: 'blur(10px)',
+            width: isMobile ? '100%' : 'auto',
+            maxWidth: isMobile ? '300px' : 'none',
+            justifyContent: isMobile ? 'center' : 'flex-start'
+          }}
+        >
+          <span style={{ 
+            display: 'inline-block',
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            background: showPlanetNames ? '#4CAF50' : '#666',
+            transition: 'background 0.2s ease'
+          }} />
+          Planet Names
+        </button>
       </div>
+
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .time-controls {
+              width: 100%;
+              max-width: 300px;
+            }
+            .time-controls-buttons {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+            }
+            .time-controls-buttons button {
+              flex: 1;
+              min-width: 80px;
+            }
+          }
+        `}
+      </style>
     </div>
   )
 }

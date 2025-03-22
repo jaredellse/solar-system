@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { useFrame, useLoader } from '@react-three/fiber'
+import { useFrame, useLoader, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -12,7 +12,12 @@ interface PlanetProps {
   textureUrl: string
   hasAtmosphere: boolean
   timeSpeed: number
-  onClick?: () => void
+  description: string
+  realRadius?: number
+  realDistance?: number
+  isDescriptionVisible: boolean
+  onDescriptionToggle: () => void
+  showName: boolean
 }
 
 export default function Planet({
@@ -24,10 +29,17 @@ export default function Planet({
   textureUrl,
   hasAtmosphere,
   timeSpeed,
-  onClick
+  description,
+  realRadius,
+  realDistance,
+  isDescriptionVisible,
+  onDescriptionToggle,
+  showName
 }: PlanetProps) {
   const planetRef = useRef<THREE.Mesh>(null)
   const groupRef = useRef<THREE.Group>(null)
+  const ringsRef = useRef<THREE.Mesh>(null)
+  const { camera } = useThree()
 
   // Load the texture using useLoader
   const texture = useLoader(THREE.TextureLoader, textureUrl)
@@ -51,15 +63,18 @@ export default function Planet({
       const time = clock.getElapsedTime()
       
       // Orbital movement
-      // timeSpeed is in Earth days per second, so we need to convert it
       const orbitalAngle = (2 * Math.PI * time * timeSpeed) / orbitPeriod
       groupRef.current.position.x = Math.cos(orbitalAngle) * orbitRadius
       groupRef.current.position.z = Math.sin(orbitalAngle) * orbitRadius
 
       // Planet rotation
-      // Rotation speed is based on the planet's rotation period and time speed
       const rotationAngle = (2 * Math.PI * time * timeSpeed) / Math.abs(rotationPeriod)
       planetRef.current.rotation.y = rotationAngle * Math.sign(rotationPeriod)
+
+      // Special rotation for Uranus (tilted 98 degrees)
+      if (name === 'Uranus') {
+        planetRef.current.rotation.z = Math.PI * 0.54 // ~98 degrees
+      }
     }
   })
 
@@ -74,7 +89,13 @@ export default function Planet({
       {/* Planet group */}
       <group ref={groupRef}>
         {/* Planet mesh */}
-        <mesh ref={planetRef} onClick={onClick}>
+        <mesh 
+          ref={planetRef} 
+          onClick={(e) => {
+            e.stopPropagation()
+            onDescriptionToggle()
+          }}
+        >
           <sphereGeometry args={[radius, 64, 64]} />
           <meshBasicMaterial
             map={texture}
@@ -82,33 +103,170 @@ export default function Planet({
           />
         </mesh>
 
+        {/* Saturn's rings */}
+        {name === 'Saturn' && (
+          <group rotation={[Math.PI * 0.1, 0, 0]}>
+            {/* Inner ring (B ring) */}
+            <mesh>
+              <ringGeometry args={[radius * 1.4, radius * 1.7, 128]} />
+              <meshStandardMaterial
+                color="#F5EFE7"
+                transparent
+                opacity={0.8}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+            {/* Outer ring (A ring) */}
+            <mesh>
+              <ringGeometry args={[radius * 1.7, radius * 2.0, 128]} />
+              <meshStandardMaterial
+                color="#EBE3D5"
+                transparent
+                opacity={0.6}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+          </group>
+        )}
+
+        {/* Uranus's rings */}
+        {name === 'Uranus' && (
+          <group rotation={[Math.PI * 0.5, 0, Math.PI * 0.54]}>
+            <mesh>
+              <ringGeometry args={[radius * 1.4, radius * 1.8, 128]} />
+              <meshBasicMaterial
+                color="#B5C7D3"
+                transparent
+                opacity={0.3}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+          </group>
+        )}
+
         {/* Atmosphere effect for planets with atmosphere */}
         {hasAtmosphere && (
           <mesh>
             <sphereGeometry args={[radius * 1.05, 32, 32]} />
             <meshBasicMaterial
-              color="#ffffff"
+              color={name === 'Venus' ? '#FFE4B5' : '#ffffff'}
               transparent
-              opacity={0.1}
+              opacity={name === 'Venus' ? 0.3 : 0.1}
               blending={THREE.AdditiveBlending}
               side={THREE.BackSide}
             />
           </mesh>
         )}
 
-        {/* Planet label */}
-        <Html distanceFactor={15}>
-          <div style={{
-            color: 'white',
-            background: 'rgba(0,0,0,0.8)',
-            padding: '5px 10px',
-            borderRadius: '5px',
-            transform: 'translate3d(-50%, -50%, 0)',
-            pointerEvents: 'none'
-          }}>
-            {name}
-          </div>
-        </Html>
+        {/* Planet Label */}
+        {showName && (
+          <Html
+            position={[0, radius * (name === 'Mercury' || name === 'Venus' || name === 'Earth' || name === 'Mars' ? 1.8 : 1.2), 0]}
+            style={{
+              transition: 'all 0.2s',
+              opacity: 1,
+              transform: 'translate3d(-50%, -50%, 0)',
+              pointerEvents: 'none'
+            }}
+            center
+          >
+            <div style={{
+              color: 'white',
+              background: 'rgba(0,0,0,0.8)',
+              padding: '0.4em 0.8em',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              whiteSpace: 'nowrap',
+              userSelect: 'none',
+              textShadow: '0 0 10px rgba(0,0,0,0.5)'
+            }}>
+              {name}
+            </div>
+          </Html>
+        )}
+
+        {/* Description box */}
+        {isDescriptionVisible && (
+          <Html
+            style={{
+              position: 'fixed',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+            }}
+            prepend
+          >
+            <div style={{
+              color: 'white',
+              background: 'rgba(0,0,0,0.9)',
+              padding: '20px',
+              borderRadius: '12px',
+              width: '300px',
+              position: 'relative',
+              pointerEvents: 'auto',
+              cursor: 'auto',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+            }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDescriptionToggle()
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  color: 'white',
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '15px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: 'bold'
+                }}
+              >
+                ×
+              </button>
+              <h3 style={{ 
+                margin: '0 0 15px 0', 
+                paddingRight: '25px',
+                fontSize: '24px',
+                fontWeight: 'bold'
+              }}>{name}</h3>
+              <p style={{ 
+                margin: '0 0 15px 0', 
+                fontSize: '18px', 
+                lineHeight: '1.5',
+                fontWeight: '400'
+              }}>{description}</p>
+              <div style={{
+                fontSize: '16px',
+                lineHeight: '1.4',
+                opacity: 0.9
+              }}>
+                <p style={{ margin: '0 0 8px 0' }}>
+                  Radius: {realRadius?.toLocaleString()} miles
+                </p>
+                <p style={{ margin: '0 0 8px 0' }}>
+                  Distance from Sun: {realDistance?.toLocaleString()} million miles
+                </p>
+                <p style={{ margin: '0 0 8px 0' }}>
+                  Orbital Period: {orbitPeriod} Earth days
+                </p>
+                <p style={{ margin: '0' }}>
+                  Rotation Period: {Math.abs(rotationPeriod)} Earth days {rotationPeriod < 0 ? '(retrograde)' : ''}
+                </p>
+              </div>
+            </div>
+          </Html>
+        )}
       </group>
     </>
   )
