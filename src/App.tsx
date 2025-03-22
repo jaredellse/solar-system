@@ -224,7 +224,10 @@ function App() {
       {/* UI Controls */}
       <div style={{
         position: 'absolute',
-        bottom: window.innerWidth <= 768 ? '30%' : '10px',
+        ...(window.innerWidth <= 768 
+          ? { top: '10px' }  // Mobile: at the top
+          : { bottom: '10px' }  // Desktop: at the bottom
+        ),
         left: '50%',
         transform: 'translateX(-50%)',
         color: 'white',
