@@ -23,5 +23,5 @@ export default defineConfig({
     }
   },
   assetsInclude: ['**/*.jpg', '**/*.png'],
-  base: './'
+  base: '/solar-system/'
 })
