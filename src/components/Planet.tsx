@@ -48,19 +48,18 @@ export default function Planet({
 
   useFrame(({ clock }) => {
     if (planetRef.current && groupRef.current) {
-      // Convert timeSpeed from days/second to appropriate orbital and rotation speeds
       const time = clock.getElapsedTime()
       
-      // Orbital movement: 2π * timeSpeed / orbitalPeriod gives us the angle per second
-      const orbitalSpeed = (2 * Math.PI * timeSpeed) / orbitPeriod
-      const angle = time * orbitalSpeed
-      
-      groupRef.current.position.x = Math.cos(angle) * orbitRadius
-      groupRef.current.position.z = Math.sin(angle) * orbitRadius
+      // Orbital movement
+      // timeSpeed is in Earth days per second, so we need to convert it
+      const orbitalAngle = (2 * Math.PI * time * timeSpeed) / orbitPeriod
+      groupRef.current.position.x = Math.cos(orbitalAngle) * orbitRadius
+      groupRef.current.position.z = Math.sin(orbitalAngle) * orbitRadius
 
-      // Planet rotation: 2π * timeSpeed / rotationPeriod gives us the rotation angle per second
-      const rotationSpeed = (2 * Math.PI * timeSpeed) / rotationPeriod
-      planetRef.current.rotation.y += rotationSpeed / 60 // Divide by 60 because useFrame runs ~60 times per second
+      // Planet rotation
+      // Rotation speed is based on the planet's rotation period and time speed
+      const rotationAngle = (2 * Math.PI * time * timeSpeed) / Math.abs(rotationPeriod)
+      planetRef.current.rotation.y = rotationAngle * Math.sign(rotationPeriod)
     }
   })
 

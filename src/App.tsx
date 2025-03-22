@@ -9,11 +9,11 @@ import './App.css'
 
 // Time speed options (Earth days per second)
 const TIME_SPEEDS = [
-  { label: '1 Second = 1 Hour (Slowest)', value: 1/24/60 },
-  { label: '1 Second = 1 Day', value: 1/24 },
-  { label: '1 Second = 1 Week', value: 7/24 },
-  { label: '1 Second = 1 Month', value: 30/24 },
-  { label: '1 Second = 1 Year (Fastest)', value: 365/24 }
+  { label: '1 Hour', value: 1/24 },      // 1 hour per second
+  { label: '1 Day', value: 1 },          // 1 day per second
+  { label: '1 Week', value: 7 },         // 1 week per second
+  { label: '1 Month', value: 30 },       // 1 month per second
+  { label: '1 Year', value: 365 }        // 1 year per second
 ]
 
 // Constants for display only (actual measurements)
@@ -65,7 +65,7 @@ const planets = [
   {
     name: 'Mercury',
     radius: 0.8,
-    orbitRadius: 6,
+    orbitRadius: 10,
     orbitPeriod: 88,
     rotationPeriod: 59,
     textureUrl: './textures/mercury.jpg',
@@ -74,7 +74,7 @@ const planets = [
   {
     name: 'Venus',
     radius: 1.2,
-    orbitRadius: 8,
+    orbitRadius: 15,
     orbitPeriod: 225,
     rotationPeriod: -243,
     textureUrl: './textures/venus.jpg',
@@ -83,7 +83,7 @@ const planets = [
   {
     name: 'Earth',
     radius: 1.3,
-    orbitRadius: 10,
+    orbitRadius: 20,
     orbitPeriod: 365,
     rotationPeriod: 1,
     textureUrl: './textures/earth.jpg',
@@ -92,7 +92,7 @@ const planets = [
   {
     name: 'Mars',
     radius: 0.9,
-    orbitRadius: 12,
+    orbitRadius: 25,
     orbitPeriod: 687,
     rotationPeriod: 1.03,
     textureUrl: './textures/mars.jpg',
@@ -101,7 +101,7 @@ const planets = [
   {
     name: 'Jupiter',
     radius: 3.5,
-    orbitRadius: 16,
+    orbitRadius: 35,
     orbitPeriod: 4333,
     rotationPeriod: 0.41,
     textureUrl: './textures/jupiter.jpg',
@@ -110,7 +110,7 @@ const planets = [
   {
     name: 'Saturn',
     radius: 3.0,
-    orbitRadius: 20,
+    orbitRadius: 45,
     orbitPeriod: 10759,
     rotationPeriod: 0.45,
     textureUrl: './textures/saturn.jpg',
@@ -119,16 +119,16 @@ const planets = [
   {
     name: 'Uranus',
     radius: 2.0,
-    orbitRadius: 24,
+    orbitRadius: 55,
     orbitPeriod: 30687,
     rotationPeriod: -0.72,
-    textureUrl: '/textures/uranus.jpg',
+    textureUrl: './textures/uranus.jpg',
     hasAtmosphere: true
   },
   {
     name: 'Neptune',
     radius: 1.8,
-    orbitRadius: 28,
+    orbitRadius: 65,
     orbitPeriod: 60190,
     rotationPeriod: 0.67,
     textureUrl: './textures/neptune.jpg',
@@ -177,12 +177,12 @@ function App() {
   const [timeSpeed, setTimeSpeed] = useState(TIME_SPEEDS[0].value)
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#000' }}>
-      <Canvas camera={{ position: [0, 20, 35], fov: 75 }}>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <Canvas camera={{ position: [0, 50, 100], fov: 60 }}>
         <color attach="background" args={['#000000']} />
+        <ambientLight intensity={0.1} />
         <Stars />
         <OrbitControls />
-        <ambientLight intensity={0.1} />
         <pointLight position={[0, 0, 0]} intensity={2} distance={100} decay={1} />
         
         <Suspense fallback={null}>

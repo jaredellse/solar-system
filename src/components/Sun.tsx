@@ -14,11 +14,12 @@ export default function Sun({ textureUrl, timeSpeed }: SunProps) {
   const texture = useLoader(THREE.TextureLoader, textureUrl)
   texture.colorSpace = THREE.SRGBColorSpace
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (sunRef.current) {
+      const time = clock.getElapsedTime()
       // Sun rotates once every 27 Earth days
-      const rotationSpeed = (2 * Math.PI * timeSpeed) / 27
-      sunRef.current.rotation.y += rotationSpeed / 60
+      const rotationAngle = (2 * Math.PI * time * timeSpeed) / 27
+      sunRef.current.rotation.y = rotationAngle
     }
   })
 
