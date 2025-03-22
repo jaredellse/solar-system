@@ -26,7 +26,7 @@ export function OrbitLine({ radius, color = '#ffffff20' }: OrbitLineProps) {
       points={points}
       color={color}
       lineWidth={1}
-      opacity={0.5}
+      opacity={0.8}
       transparent
       dashed={false}
     />
