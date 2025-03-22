@@ -224,7 +224,7 @@ function App() {
       {/* UI Controls */}
       <div style={{
         position: 'absolute',
-        bottom: '10px',
+        bottom: window.innerWidth <= 768 ? '30%' : '10px',
         left: '50%',
         transform: 'translateX(-50%)',
         color: 'white',
@@ -233,7 +233,8 @@ function App() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '10px'
+        gap: '10px',
+        zIndex: 1000
       }}>
         {/* Toggle Button */}
         <button
